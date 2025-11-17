@@ -1,0 +1,29 @@
+  {
+    "project_info": {
+      "project_number": "43849917120",
+      "project_id": "floreria-93c28",
+      "storage_bucket": "floreria-93c28.firebasestorage.app"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:43849917120:android:58aea22d8719d07e17c325",
+          "android_client_info": {
+            "package_name": "com.example.floreria_encanto2"
+          }
+        },
+        "oauth_client": [],
+        "api_key": [
+          {
+            "current_key": "AIzaSyDppdtq-zOKEYelRTe2MapwP5zPEZ6f-kg"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": []
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
