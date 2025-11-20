@@ -18,7 +18,6 @@ android {
         versionName = flutter.versionName
     }
 
-    // 🔧 ESTA ES LA PARTE CLAVE QUE FALTABA (Java y Kotlin iguales)
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -31,6 +30,15 @@ android {
     buildTypes {
         release {
             signingConfig = signingConfigs.getByName("debug")
+
+            // 🔧 Solución shrinkResources
+            isMinifyEnabled = true
+            isShrinkResources = false
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

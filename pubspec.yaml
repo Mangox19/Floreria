@@ -1,5 +1,5 @@
 name: floreria_encanto2
-description: "A new Flutter project."
+description: "Aplicación de Florería Encanto"
 publish_to: 'none'
 version: 0.1.0
 
@@ -9,16 +9,30 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+
+  # Firebase
   firebase_core: ^3.8.0
   firebase_auth: ^5.1.0
   cloud_firestore: ^5.4.0
+  firebase_storage: ^12.3.2       # 📌 Para guardar fotos de perfil
+
+  # Google Maps
   google_maps_flutter: ^2.6.1
+
+  # Imagenes y cámara
+  image_picker: ^1.1.2             # 📌 Para subir imágenes desde galería o cámara
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^5.0.0
   flutter_native_splash: ^2.4.0
+  flutter_launcher_icons: ^0.13.1   # 📌 Ícono de app
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
 
 flutter_native_splash:
   color: "#ffffff"

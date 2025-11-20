@@ -1,6 +1,9 @@
+// lib/screens/profile_screen.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import '../widgets/drawer_widget.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -11,32 +14,51 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String name = "";
-  String email = "";
-  String fecha = "";
+  String nombre = "";
+  String usuario = "";
+  String correo = "";
+  String foto = "";
+  File? _imageFile;
 
   @override
   void initState() {
     super.initState();
-    _loadUserInfo();
+    _loadUserData();
   }
 
-  Future<void> _loadUserInfo() async {
+  Future<void> _loadUserData() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
-    final doc = await FirebaseFirestore.instance
+    final snap = await FirebaseFirestore.instance
         .collection("usuarios")
         .doc(user.uid)
         .get();
 
-    setState(() {
-      email = user.email ?? "";
-      name = doc["nombre"] ?? "";
-      fecha = doc["fechaRegistro"] != null
-          ? doc["fechaRegistro"].toDate().toString().substring(0, 10)
-          : "";
-    });
+    if (snap.exists) {
+      setState(() {
+        nombre = snap["nombre"] ?? "Sin nombre";
+        usuario = snap["usuario"] ?? "usuario";
+        correo = snap["email"] ?? user.email!;
+        foto = snap["foto"] ?? "";
+      });
+    }
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+
+    if (picked != null) {
+      setState(() {
+        _imageFile = File(picked.path);
+        foto = picked.path;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Foto cargada temporalmente 📸\n(falta enviar a Firebase Storage)")),
+      );
+    }
   }
 
   @override
@@ -46,112 +68,103 @@ class _ProfileScreenState extends State<ProfileScreen> {
       backgroundColor: const Color(0xFFFDE2E4),
       appBar: AppBar(
         backgroundColor: const Color(0xFFE5989B),
-        title: const Text("Mi Perfil", style: TextStyle(color: Colors.white)),
+        title: const Text("Mi Perfil 🌸", style: TextStyle(color: Colors.white)),
+        centerTitle: true,
       ),
 
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 10),
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            const SizedBox(height: 15),
 
-              // FOTO DE PERFIL
-              CircleAvatar(
-                radius: 60,
-                backgroundColor: Colors.pinkAccent.shade200,
-                child: const Icon(Icons.person, size: 65, color: Colors.white),
-              ),
-
-              const SizedBox(height: 14),
-
-              // NOMBRE
-              Text(
-                name,
-                style: const TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              const SizedBox(height: 6),
-
-              // CORREO
-              Text(
-                email,
-                style: const TextStyle(fontSize: 18, color: Colors.black54),
-              ),
-
-              const SizedBox(height: 24),
-
-              // TARJETA DE DATOS
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
-                    )
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text("Información de la cuenta",
-                        style: TextStyle(
-                            fontSize: 20, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        const Icon(Icons.person),
-                        const SizedBox(width: 10),
-                        Text("Nombre: $name", style: const TextStyle(fontSize: 18))
-                      ],
+            // FOTO + BOTÓN EDITAR
+            Center(
+              child: Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
+                    radius: 70,
+                    backgroundColor: Colors.pink.shade200,
+                    backgroundImage: foto.isNotEmpty ? FileImage(File(foto)) : null,
+                    child: foto.isEmpty
+                        ? const Icon(Icons.person, size: 80, color: Colors.white)
+                        : null,
+                  ),
+                  Container(
+                    height: 42,
+                    width: 42,
+                    decoration: BoxDecoration(
+                      color: Colors.pinkAccent,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white, width: 3),
                     ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        const Icon(Icons.email),
-                        const SizedBox(width: 10),
-                        Text("Correo: $email",
-                            style: const TextStyle(fontSize: 18))
-                      ],
+                    child: IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: const Icon(Icons.camera_alt, size: 20, color: Colors.white),
+                      onPressed: _pickImage,
                     ),
-                    const SizedBox(height: 10),
-                    if (fecha.isNotEmpty)
-                      Row(
-                        children: [
-                          const Icon(Icons.calendar_today),
-                          const SizedBox(width: 10),
-                          Text("Registrado: $fecha",
-                              style: const TextStyle(fontSize: 18))
-                        ],
-                      ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
 
-              const SizedBox(height: 30),
+            const SizedBox(height: 15),
 
-              // BOTÓN EDITAR
-              SizedBox(
-                width: 200,
-                height: 50,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.edit, size: 20),
-                  label: const Text("Editar perfil"),
-                  onPressed: () {},
+            // DATOS
+            Text(nombre, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 5),
+            Text("@$usuario", style: const TextStyle(fontSize: 18, color: Colors.black54)),
+            const SizedBox(height: 5),
+            Text(correo, style: const TextStyle(fontSize: 16, color: Colors.black54)),
+
+            const SizedBox(height: 30),
+            const Divider(thickness: 1),
+
+            ListTile(
+              leading: const Icon(Icons.edit, color: Colors.pinkAccent),
+              title: const Text("Editar información"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.pushNamed(context, "/editProfile"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.lock_outline, color: Colors.pinkAccent),
+              title: const Text("Cambiar contraseña"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.pushNamed(context, "/reset"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.receipt_long, color: Colors.pinkAccent),
+              title: const Text("Mis pedidos"),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+              onTap: () => Navigator.pushNamed(context, "/orders"),
+            ),
+
+            const SizedBox(height: 25),
+
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.logout),
+                label: const Text("Cerrar sesión", style: TextStyle(fontSize: 18)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
                 ),
+                onPressed: () async {
+                  await FirebaseAuth.instance.signOut();
+                  if (context.mounted) {
+                    Navigator.pushReplacementNamed(context, "/login");
+                  }
+                },
               ),
+            ),
 
-              const SizedBox(height: 40),
-            ],
-          ),
+            const SizedBox(height: 60),
+          ],
         ),
       ),
     );

@@ -12,6 +12,10 @@ import 'screens/catalog_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/cart_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/support_screen.dart';
+import 'screens/edit_profile_screen.dart';
+//import 'screens/orders_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +32,6 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: "Florería Encanto",
       theme: AppTheme.lightTheme,
-
       initialRoute: "/",
 
       routes: {
@@ -40,7 +43,12 @@ class MyApp extends StatelessWidget {
         "/catalog": (context) => const CatalogScreen(),
         "/map": (context) => const MapScreen(),
         "/cart": (context) => const CartScreen(),
-        "/profile": (context) => const ProfileScreen(), // NUEVA PANTALLA PERFIL
+        "/profile": (context) => const ProfileScreen(),
+        "/support": (context) => const SupportScreen(),
+        "/editProfile": (context) => const EditProfileScreen(),
+        //"/orders": (context) => const OrdersScreen(),
+        // "/orderDetail": (context) => const OrderDetailScreen(),
+        // "/addAddress": (context) => const AddAddressScreen(),
       },
     );
   }

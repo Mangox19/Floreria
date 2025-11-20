@@ -13,10 +13,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _name = TextEditingController();
+  final _username = TextEditingController(); // ✨ Nuevo campo usuario
   bool _loading = false;
 
   Future<void> _register() async {
-    if (_email.text.isEmpty || _password.text.isEmpty || _name.text.isEmpty) {
+    if (_email.text.isEmpty ||
+        _password.text.isEmpty ||
+        _name.text.isEmpty ||
+        _username.text.isEmpty) {
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Completa todos los campos")),
       );
@@ -35,8 +40,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           .collection("usuarios")
           .doc(cred.user!.uid)
           .set({
+        "usuario": _username.text.trim(),
         "nombre": _name.text.trim(),
         "email": _email.text.trim(),
+        "foto": "",
         "fechaRegistro": DateTime.now(),
       });
 
@@ -75,6 +82,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold)),
             const SizedBox(height: 24),
 
+            _input("Usuario", Icons.account_circle, _username),
+            const SizedBox(height: 18),
+
             _input("Nombre", Icons.person, _name),
             const SizedBox(height: 18),
 
@@ -82,7 +92,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             const SizedBox(height: 18),
 
             _input("Contraseña", Icons.lock, _password, obscure: true),
-            const SizedBox(height: 50),
+            const SizedBox(height: 40),
 
             SizedBox(
               width: double.infinity,
@@ -95,10 +105,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
-                  "Crear Cuenta",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
+                child: _loading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text("Crear Cuenta",
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ),
             ),
           ],
